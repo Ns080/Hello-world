@@ -1,0 +1,93 @@
+@CHARSET "UTF-8";
+.blue-button {
+  appearance: none;
+  border: 1;
+  background: #BDD7EE;
+}
+
+.blue-button:hover {
+  background: #006699;
+  color: #ffffff;
+}
+
+.blue-button:focus {
+  outline: none;
+}
+
+.gray-button {
+  appearance: none;
+  border: 1;
+  background: #cecece;
+}
+
+.gray-button:hover {
+  background: #4e4e4e;
+  color: #ffffff;
+}
+
+.gray-button:focus {
+  outline: none;
+}
+
+.green-button {
+  appearance: none;
+  border: 1;
+  background: #C6E0B4;
+}
+
+.green-button:hover {
+  background: #548235;
+  color: #ffffff;
+}
+
+.green-button:focus {
+  outline: none;
+}
+
+.pointer {
+  appearance: none;
+  outline: 1px solid black;
+  background: #FFFFFF;
+  background-clip: padding-box;
+}
+
+.pointer:hover {
+  background: #0033CC;
+  color: #ffffff;
+}
+
+.pointer:focus {
+  outline: none;
+}
+
+.operation_btn01 {
+  appearance: none;
+  border: 1;
+  background: #BDD7EE;
+}
+
+.operation_btn01:hover {
+  background: #006699;
+  color: #ffffff;
+}
+
+.operation_btn01:focus {
+  outline: none;
+}
+
+.operation_btn03 {
+  appearance: none;
+  border: 1;
+  background: #E2EFDA;
+}
+
+.operation_btn03:hover {
+  background: #765A00;
+  color: #ffffff;
+}
+
+.operation_btn03:focus {
+  outline: none;
+}
+
+

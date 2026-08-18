@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+
+<meta charset="UTF-8">
+<title>社内送信BOX</title>
+
+<script src="../../lib/jQuery/jquery-3.7.1.min.js"></script>
+<script src="../../lib/jQuery/1.13.2/jquery-ui.min.js"></script>
+<script src="../../js/base.js?p=(new Date()).getTime()"></script>
+<script src="../../js/dateUtil.js?"></script>
+<link rel="stylesheet" href="doc0003.css?12">
+<link rel="stylesheet" href="../../lib/jQuery/1.13.2/jquery-ui.min.css">
+<script src="doc0003.js?118"></script>
+
+</head>
+
+<body style="background-color:#E2EFDA;margin: 0px;padding: 0px;">
+	<table style="background-color:#F2F2F2; border:none;border-collapse:collapse;">
+		<tr>
+			<td>
+				<table style="border:none;background-color:#F2F2F2;width:1200px;">
+					<tr>
+						<td style="width:30px;"></td>
+						<td  align="left" STYLE="font-size:16px;color:#C65911;height:50px;width:200px;">社内受信BOX</td>
+						<td style="width:200px;">
+							<button style="font-size:12px;background-color:#9BC2E6;width:120px;" id="sendBoxBtn">
+								送信BOX切替
+							</button>
+						</td>
+						<td style="font-size:14px;width:210px;color:#305496;">利用者
+							<label style="font-size:14px;margin-left: 0px  0px 0px 5px;" for="name1" id="useName"></label>
+						</td>
+						<td rowspan="3">
+							<!-- <button class="gray-button" style="font-size:12px;background-color:#A6A6A6;width:110px;" id="closeBtn"> -->
+							<button class="gray-button" style="font-size:12px;width:110px;display: block; margin-left: auto;" id="closeBtn">
+								閉じる
+							</button>
+						</td>
+					</tr>
+				</table>
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<table style="border:none;background-color:#E2EFDA">
+					<tr>
+						<td style="width:20px;"></td>
+						<td colspan="8" align="left" style="background-color:#E2EFDA;width:1255px;height:35px;">
+							<label style="font-size:12px; margin: 0px  0px 0px 10px;" for="name1">年月</label>
+							<input style="font-size:12px;width:115px;" id="month1" type="month"/>
+							<label style="font-size:12px;margin: 0px  0px 0px 5px;" for="name1">文書</label>
+							<select id="docSelectList" style="border:1px solid;font-size:11px;height:20px;width:180px;">
+								<option selected disabled>
+								</option>
+							</select>
+							<label style="font-size:12px;margin: 0px  0px 0px 5px;" for="name1">文書種類</label>
+							<select id="docTypeSelectList" style="border:1px solid;font-size:11px;height:20px;width:100px;">
+								<option selected disabled>
+								</option>
+							</select>
+							<label style="font-size:12px;margin: 0px  0px 0px 5px;" for="name1">受信日付</label>
+							<input style="font-size:12px;width:110px;" id="send_recive_datetimeFrom" type="date"/>-
+							<input style="font-size:12px;width:110px;" id="send_recive_datetimeTo" type="date"/>
+							<label style="font-size:12px;margin: 0px  0px 0px 5px;" for="name1">閲覧状況</label>
+							<select id="insertStatusSelectList" style="border:1px solid;font-size:11px;height:20px;width:100px;">
+								<option selected disabled>
+								</option>
+							</select>
+							<!--  <button class="c-button" style="font-size:14px;width:80px;background-color:#BDD7EE;margin: 0px  0px 0px 10px;" id="searchBtn"> -->
+							<button class="blue-button" style="font-size:14px;width:80px;margin: 0px  0px 0px 10px;" id="searchBtn">
+							 検 索
+							</button>
+						</td>
+					</tr>
+				</table>
+		  	</td>
+		</tr>
+	</table>
+	<table id="detail" border="1" style="background-color:#DDEBF7; margin: 8px 20px; border-collapse: collapse;width:1200px;">
+		<thead>
+			<tr style="background-color:#DDEBF7;">
+				<td style="font-size:12px;width:50px;">年月</td>
+				<td style="font-size:12px;width:330px;">文書</td>
+				<td style="font-size:12px;width:160px;">文書種類</td>
+				<td style="font-size:12px;width:120px;">操作</td>
+				<td style="font-size:12px;width:62px;">受信日時</td>
+				<td style="font-size:12px;width:180px;">閲覧状況</td>
+				<td style="font-size:12px;width:180px;">閲覧日時</td>
+			</tr>
+		</thead>
+		<tbody style="font-size:11px;">
+		</tbody>
+	</table>
+</body>
+</html>
