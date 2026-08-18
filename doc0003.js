@@ -1,8 +1,9 @@
+
 /**
- * doc0001.js
- * 社内送信BOX画面のセレクトボックスと動的HTML生成
+ * doc0003.js
+ * 社内受信BOX画面(一般社員)のセレクトボックスと動的HTML生成
  * @author S.Nishio
- *    Date:2021/04/30
+ *    Date:2026/07/08
  * @version 1.0.0
  *
  */
@@ -11,42 +12,34 @@
 var strYyyyMm = "";
 
 //文書セレクトボックスの選択値
-var docSelectVal = "";
+var docNameSelectVal = "";
 
-//社員セレクトボックスの選択値(社員コード)
-var emplSelectVal = "";
-
-//登録状況セレクトボックスの選択値
-var insertStatusSelectVal = "";
+//文書種類セレクトボックスの選択値
+var docTypeSelectVal = "";
 
 //状況セレクトボックスの選択値
 var statusSelectVal = "";
 
+//保持している社員情報
 var userInfoArray = [];
+//社員コード
+var emplC ="";
 
-//操作ボタン押下時の明細の社員コード
-var detailEmplCode = "";
+//受信日付セレクトボックスFrom 
+var datetime ="";
 
-//画面の準備
+//受信日付セレクトボックスTo
+var datetime2="";
+
+/* *********************************************
+*画面の準備
+** ********************************************/
 $(document).ready(function(){
 
-	userInfoArray = init("");
 
-	docInit();
-
-    //受信BOX切替ボタンのクリックイベント設定
-    $("#reciveBoxBtn").click(function(){
-	    subReciveBox();
- 	});
-
-    //社員マスタ登録ボタンのクリックイベント設定
-    $("#emplMstBtn").click(function(){
-	    subEmplMst();
- 	});
-
-    //共通連絡新規登録ボタンのクリックイベント設定
-    $("#insertDocBodyBtn").click(function(){
-	    subInsertDocBody();
+    //送信BOX切替ボタンのクリックイベント設定
+    $("#sendBoxBtn").click(function(){
+	    subSendBox();
  	});
 
     //閉じるボタンのクリックイベント設定
@@ -60,41 +53,44 @@ $(document).ready(function(){
  	});
 
     //年月の変更イベント設定
-    $("#month1").change(function(){
+    $("#lookUpYearMonth").change(function(){
 	    subYMChange();
  	});
 
     //文書セレクトボックスの変更イベント設定
-    $("#docSelectList").change(function(){
-	    subDocSelectChange();
+    $("#docNameSelectList").change(function(){
+	    subDocNameSelectChange();
  	});
 
-    //社員セレクトボックスの変更イベント設定
-    $("#emplSelectList").change(function(){
-	    subEmplSelectChange();
+    //文書種類セレクトボックスの変更イベント設定
+    $("#docTypeSelectList").change(function(){
+	    subDocTypeSelectChange();
+ 	});
+ 	
+ 	 //受信日時セレクトボックス(開始日)の変更イベント設定
+    $("#dateFrom").change(function(){
+	    subDateTimeFromSelectChange();
+ 	});
+ 	
+ 	 //受信日時セレクトボックス(終了日)の変更イベント設定
+    $("#dateTo").change(function(){
+	    subDateTimeToSelectChange();
  	});
 
-    //登録状況セレクトボックスの変更イベント設定
-    $("#insertStatusSelectList").change(function(){
-	    subInsertStatusSelectChange();
- 	});
-
-    //状況セレクトボックスの変更イベント設定
+    //閲覧状況セレクトボックスの変更イベント設定
     $("#statusSelectList").change(function(){
 	    subStatusSelectChange();
  	});
 
 });
 
-function docInit() {
-
-	var emplName = userInfoArray[1];
-	$("#useName").text(emplName);
-
-}
-
-//画面の初期ロード
+/* *********************************************
+*画面の初期ロード
+** ********************************************/
 $(window).on('load',function(){
+	
+	//社員名を取得し表示
+	docInit();
 
 	//年月の初期処理
 	monthInit();
@@ -102,395 +98,412 @@ $(window).on('load',function(){
 	//全セレクトボックスの初期処理
 	selectBoxInitAll();
 
-	//登録日付の初期処理
-	dateInit();
-
 	//初期検索処理
 	initSearch();
 
 });
+/* *********************************************
+*利用者名を表示
+** ********************************************/
+function docInit() {
+	//ユーザ情報を取得
+	userInfoArray = init("");
 
-//セレクトボックスの初期設定
+	const emplName = userInfoArray[1];
+	emplC = userInfoArray[0];
+	$("#useName").text(emplName);
+
+}
+/* *********************************************
+*セレクトボックスの初期設定
+** ********************************************/
 function selectBoxInitAll() {
 
 	//文書セレクトボックス
-	docSelectBoxInit();
+	docNameSelectBoxInit();
 
-	//社員セレクトボックス
-	emplSelectBoxInit();
+	//文書分類セレクトボックス
+	docTypeSelectBoxInit();
 
-	//登録状況セレクトボックス
-	lastInsStatusSelectBoxInit();
-
-	//状況セレクトボックス
+	//閲覧状況セレクトボックス
 	statusSelectBoxInit();
 
 }
-
-//年月に当月の初期値をセット
+/* *********************************************
+*年月に当月の初期値をセット
+* ********************************************/
 function monthInit() {
 
-	var ym = toMonthVal();
+	const ym = toMonthVal();
 
-    document.getElementById("month1").value = ym;
+    $("#lookUpYearMonth").val(ym);
 
     //検索パラメータとして当月をセット
     strYyyyMm = String(ym).replace("-","");
 
 }
-
-//登録日付に当日の初期値をセット
-function dateInit() {
-
-	//var ymd = toDayVal();
-
-    //登録日付(開始）
-    //document.getElementById("dateFrom").value = ymd;
-
-    //登録日付(終了）
-    //document.getElementById("dateTo").value = ymd;
-
-}
-
-//閉じるボタンのイベント
+/* *********************************************
+*閉じるボタンのイベント
+* ********************************************/
 function subClose() {
 	//一度再表示してからClose
 	open('about:blank', '_self').close();
 }
-
-//受信BOX切替ボタンのクリックイベント
-function subReciveBox() {
-	var ym = strYyyyMm.replace("-","");
-	var url = "http://localhost:8080/oraDoc/form/doc0002/doc0002.html";
+/* *********************************************
+*送信BOX切替ボタンのクリックイベント
+/* ********************************************/
+function subSendBox() {
+	const ym = strYyyyMm.replace("-","");
+	let url = "http://localhost:8080/oraDoc/form/doc0004/doc0004.html";
 	url += "?ym=" + ym;
 
 	//新しいウィンドウで表示
 	window.open(url);
 }
 
-//社員マスタ登録ボタンのクリックイベント
-function subEmplMst() {
-	window.open("http://localhost:8080/oraDoc/form/doc0014/doc0014.html");
-}
-
-//共通連絡新規登録ボタンのクリックイベント
-function subInsertDocBody() {
-	var ym = strYyyyMm.replace("-","");
-	var url = "http://localhost:8080/oraDoc/form/doc0010/doc0010.html";
-	url += "?ym=" + ym;
-
-	//新しいウィンドウで表示
-	window.open(url);
-}
-
-//文書セレクトボックスの初期設定
-function docSelectBoxInit() {
+/* *********************************************
+*文書セレクトボックスの初期設定
+**********************************************/
+function docNameSelectBoxInit() {
 
 	//クリア
-	$("#docSelectList").empty();
+	$("#docNameSelectList").empty();
 
-	//送受信トランの当月データを取得
-	var url = "http://localhost:8080/oraDoc/GetSendReciveTranSelectBoxServlet?ACTION=";
-    var action = "search";
+	//送受信明細トランの当月データを取得
+	let url = "http://localhost:8080/oraDoc/GetDocNameSelectBoxServlet?ACTION=";
+    const action = "search";
 
     url += action;
 
-    var senddata = {
+    const senddata = {
     	//送受信区分（1:送信）
     	send_recive_type: "1",
     	//年月（当月）
     	year_month : strYyyyMm.replace("-",""),
-    	//文書名
-    	doc_name : "",
     	//社員コード
-    	empl_code : emplSelectVal,
-    	//最終登録日(開始)
-    	last_send_recive_datetime_from : "",
-    	//最終登録日(終了)
-    	last_send_recive_datetime_to : "",
-    	//登録状況
-    	insert_status : "",
-    	//状況
-    	status : "",
-    	//在職日(先月の1日に在職)
-    	employment_date : lastMonthVal(strYyyyMm.replace("-","")) + "01"
+    	empl_code : emplC,
     };
 
     //ajax通信
-    var jqXHR = postSeatch(senddata,url);
+    const jqXHR = postSeatch(senddata,url);
 
     setDocSelectBox(jqXHR);
 
 }
-
-//文書セレクトボックスへ選択値をセット
+/* *********************************************
+*文書セレクトボックスへ選択値をセット
+***********************************************/
 function setDocSelectBox(jqXHR) {
 	//var obj = JSON.parse(data);
-    $("#docSelectList").append($("<option>").val("").text("ALL"));
+    $("#docNameSelectList").append($("<option>").val("").text("ALL").prop("selected",true));
 
 	jqXHR.done(function(data, stat, xhr) {
 		//結果を表示
 		$.each( data, function( key, value ){
-		    $("#docSelectList").append($("<option>").val(String(value.doc_name)).text(String(value.doc_name)));
+		    $("#docNameSelectList").append($("<option>").val(String(value.doc_name)).text(String(value.doc_name)));
 	    });
 	});
 }
 
-//社員セレクトボックスの初期設定
-function emplSelectBoxInit() {
-
-	//社員マスタの当月在職者を取得
-	var url = "http://localhost:8080/oraDoc/GetEmplMstDataServlet?ACTION=";
-    var action = "search";
-
-    url += action;
-
-    var senddata = {
-        //社員コード
-    	empl_code:"",
-        //社員名
-    	empl_name:"",
-        //管理者権限
-    	mng_grant:"",
-        //ユーザーID
-    	user_id:"",
-    	//在職日(先月の1日に在職)
-    	employment_date : lastMonthVal(strYyyyMm.replace("-","")) + "01"
-    };
-
-    //ajax通信
-    var jqXHR = postSeatch(senddata,url);
-
-    setEmplSelectBox(jqXHR);
-
-}
-
-//社員セレクトボックスへ選択値をセット
-function setEmplSelectBox(jqXHR) {
-	//var obj = JSON.parse(data);
-    $("#emplSelectList").append($("<option>").val("").text("ALL"));
-
-	jqXHR.done(function(data, stat, xhr) {
-		//結果を表示
-		$.each( data, function( key, value ){
-		    $("#emplSelectList").append($("<option>").val(String(value.empl_code)).text(String(value.empl_name)));
-	    });
-	});
-}
-
-//登録状況セレクトボックスへ最終登録状況の選択値をセット
-function lastInsStatusSelectBoxInit() {
-
-    $("#insertStatusSelectList").append($("<option>").val("").text("ALL"));
-
-    //名称マスタの一覧を取得
-	var nameValue = getNameMst("last_ins_status","1","");
+/* *********************************************
+*セレクトボックスの初期設定
+********************************************** */
+function docTypeSelectBoxInit() {
+	//ALLを初期値として選択させる
+	 $("#docTypeSelectList").append($("<option>").val("").text("ALL").prop("selected",true));
+	//名称マスタの一覧を取得
+	const nameValue = getNameMst("doc_type","1","");
 
 	$.each( nameValue, function( key, value ){
-	    $("#insertStatusSelectList").append($("<option>").val(String(value.key)).text(String(value.value)));
+	    $("#docTypeSelectList").append($("<option>").val(String(value.key)).text(String(value.value)));
     });
 
 }
-
-//状況セレクトボックスへ選択値をセット
+/* *********************************************
+*状況セレクトボックスへ選択値をセット
+* *********************************************/
 function statusSelectBoxInit() {
-    $("#statusSelectList").append($("<option>").val("").text("ALL"));
+	//ALLを初期値として選択させる
+    $("#statusSelectList").append($("<option>").val("").text("ALL").prop("selected",true));
 
     //名称マスタの一覧を取得
-	var nameValue = getNameMst("status","1","");
+	const nameValue = getNameMst("status","1","");
 
 	$.each( nameValue, function( key, value ){
 	    $("#statusSelectList").append($("<option>").val(String(value.key)).text(String(value.value)));
     });
 }
-
-//年月の変更時
+/* *********************************************
+*年月の変更時
+* ********************************************/
 function subYMChange() {
 
-	strYyyyMm = $('#month1').val();
+	strYyyyMm = $('#lookUpYearMonth').val();
 
 	//文書セレクトボックスの再セット
-	docSelectBoxInit();
+	docNameSelectBoxInit();
 
-	docSelectVal = "";
+	docNameSelectVal = "";
+
+}
+/* *********************************************
+*文書セレクトボックスの変更時
+* ********************************************/
+function subDocNameSelectChange() {
+
+	docNameSelectVal = $('#docNameSelectList option:selected').val();
 
 }
 
-//文書セレクトボックスの変更時
-function subDocSelectChange() {
+/* *********************************************
+*文書種類セレクトボックスの変更時
+* ********************************************/
+function subDocTypeSelectChange() {
 
-	docSelectVal = $('#docSelectList option:selected').val();
-
-}
-
-//社員セレクトボックスの変更時
-function subEmplSelectChange() {
-
-	//emplSelectVal = $('option:selected').val();
-	emplSelectVal = $('#emplSelectList option:selected').val();
-
-	//文書セレクトボックスの再セット
-	docSelectBoxInit();
-
-	docSelectVal = "";
+	docTypeSelectVal = $('#docTypeSelectList option:selected').val();
 
 }
+/* *********************************************
+*受信日時(開始日)セレクトボックスの変更時
+* *********************************************/
+function subDateTimeFromSelectChange() {
 
-//登録状況セレクトボックスの変更時
-function subInsertStatusSelectChange() {
-
-	insertStatusSelectVal = $('#insertStatusSelectList option:selected').val();
+	datetime = $('#dateFrom').val();
 
 }
+/* *********************************************
+*受信日時(終了日)セレクトボックスの変更時
+* *********************************************/
+function subDateTimeToSelectChange() {
 
-//状況セレクトボックスの変更時
+	datetime2 = $('#dateTo').val();
+
+}
+/* *********************************************
+*状況セレクトボックスの変更時
+* *********************************************/
 function subStatusSelectChange() {
 
 	statusSelectVal = $('#statusSelectList option:selected').val();
 
 }
-
-//表示内容のクリア
+/* *********************************************
+*表示内容のクリア
+* *********************************************/
 function detailClear() {
-	$('table#detail tbody *').remove();
+	$('table#detailTBody tbody *').empty();
 
 }
-
-//初期検索処理
+/* *********************************************
+*初期検索処理
+* ********************************************/
 function initSearch() {
 
-    var senddata = {
+    const senddata = {
         	//送受信区分（1:送信）
         	send_recive_type: "1",
         	//年月（当月）
         	year_month : strYyyyMm.replace("-",""),
-        	//文書名
-        	doc_name : "",
         	//社員コード
-        	empl_code : "",
-        	//最終登録日(開始)
-        	last_send_recive_datetime_from : "",
-        	//最終登録日(終了)
-        	last_send_recive_datetime_to : "",
-        	//登録状況
-        	insert_status : "",
-        	//状況
-        	status : "",
-        	//在職日(先月の1日に在職)
-        	employment_date : lastMonthVal(strYyyyMm.replace("-","")) + "01"
+        	empl_code : emplC
     };
 
 	subSearch(senddata);
 
 }
-
-//検索処理
+/* *********************************************
+*検索処理
+* ********************************************/
 function execSearch() {
+	//入力チェック
+	if(!inputcheck())return ;
 
-	var strDate = String($("#dateFrom").val());
-	var strDate2 = String($("#dateTo").val());
-	var datetime = "";
-	var datetime2 = "";
+	const senddata = {
+        	//送受信区分（1:送信）
+        	send_recive_type: "1",
+        	//年月（当月）
+        	year_month : strYyyyMm.replace("-",""),
+        	//文書名
+        	doc_name : docNameSelectVal,
+        	//文書種類
+        	doc_type : docTypeSelectVal,
+        	//社員コード
+        	empl_code : emplC,
+        	//受信日付(開始)
+        	send_recive_datetime_from : datetime,
+        	//受信日付(終了)
+        	send_recive_datetime_to : datetime2,
+        	//閲覧状況
+        	status : statusSelectVal,
+    };
+
+	subSearch(senddata);
+
+}
+/**********************************************
+ * 入力チェック
+ **********************************************/
+function inputcheck(){
+	const strDate = String($("#dateFrom").val());
+	const strDate2 = String($("#dateTo").val());
+	
 	if (strDate != "") {
 		datetime = strDate.substring(0,4) + strDate.substring(5,7) + strDate.substring(8,10) + "000000";
 	}
 	if (strDate2 != "") {
 		datetime2 = strDate2.substring(0,4) + strDate2.substring(5,7) + strDate2.substring(8,10) + "235959";
+		if(datetime > datetime2){
+			displayMessage(getMsg("msg0003_001"));
+			return false;
+		}
 	}
-
-	var senddata = {
-        	//送受信区分（1:送信）
-        	send_recive_type: "1",
-        	//年月（当月）
-        	year_month : strYyyyMm.replace("-",""),
-        	//文書名
-        	doc_name : docSelectVal,
-        	//社員コード
-        	empl_code : emplSelectVal,
-        	//最終登録日(開始)
-        	last_send_recive_datetime_from : datetime,
-        	//最終登録日(終了)
-        	last_send_recive_datetime_to : datetime2,
-        	//登録状況
-        	insert_status : insertStatusSelectVal,
-        	//状況
-        	status : statusSelectVal,
-        	//在職日(先月の1日に在職)
-        	employment_date : lastMonthVal(strYyyyMm.replace("-","")) + "01"
-    };
-
-	subSearch(senddata);
-
+	return true;
 }
-
+/* *********************************************
 //検索処理
+* ********************************************/
 function subSearch(senddata) {
 
     detailClear();
 
-	//送受信トランの当月データを取得
-	var url = "http://localhost:8080/oraDoc/GetSendReciveTranDataServlet?ACTION=";
-    var action = "search";
+	//送受信明細トランの当月データを取得
+	let url = "http://localhost:8080/oraDoc/GetSendReciveDetailTranDataServlet?ACTION=";
+    const action = "search";
 
     url += action;
 
     //ajax通信
-    var jqXHR = postSeatch(senddata,url);
+    const jqXHR = postSeatch(senddata,url);
 
     showData(jqXHR);
 
 }
-
+/* *********************************************
+*取得した明細を画面に表示
+/* ********************************************/
 function showData(jqXHR) {
 
 	jqXHR.done(function(data, stat, xhr) {
+		//dataの中が何もない
+		if(!data || data.length === 0){
+			 displayMessage(getMsg("msg0006_001"));
+			 return false;
+		}
 		//結果を表示
 		$.each( data, function( key, value ){
-			var str = "";
-			str = "<tr class='pointer'><td>"+ String(value.year_month)
-		    		+"</td><td>" + String(value.doc_name)
-		    		+"</td><td>" + String(value.empl_name) + "<input type='hidden' name='emplCode' value='"+ value.empl_code +"'></input>"
-		    		+"</td><td>" + String(value.retire_date);
+						
+			let str = "";
+			//年月をyyyy/mm形式で表示
+			const yyyymm = (value.year_month);
+			const yearm = formatyear(yyyymm);
+			
+			 //日時をyyyy/mm/dd hh:mm:ss形式に変換
+		    const srtimesecond = (value.send_recive_datetime);
+		    const srdatetime = formattime(srtimesecond);
+		   
+		    const cktimesecond = (value.check_datetime);
+		    const ckdatetime = formattime(cktimesecond);
+		    
+			
+			str = "<tr class='pointer'><td id='yearMonth'>"+ String(yearm)
+		    		+"</td><td id='docName'>" + String(value.doc_name)
+		    		+"</td><td id='docType'>" + String(value.doc_type_name) 
+		    		+ "<input type='hidden' name='emplCode' value='"+ value.empl_code +"'></input>";
+		   
+	    	str += "</td><td><button class='operation_btn'"+ "data-year-m='" + String(yearm) + "' "                     // 変数 yearm の中身を代入
+				    + "data-doc-n='" + (value.doc_name) + "' "             // 変数 value.doc_name の中身を代入
+				    + "data-doc-t='" + (value.doc_type_code) + "' "         // 変数 value.doc_type_code の中身を代入
+				    + "style='font-size:11px;'>"                                  // 不要な「'」と「id='operationBtn'」を削除
+				    + String(value.operation_type_name) + "</button>";    
+		   
 
-		    if (String(value.doc_name)=='') {
-		    	str = str + "</td><td><button class='operation_btn"+ String(value.operation_type) + "' style='font-size:11px;' disabled>"
-		    		+ String(value.operation_name) + "</botton>";
-		    } else {
-		    	str = str + "</td><td><button class='operation_btn"+ String(value.operation_type) + "' style='font-size:11px;'>"
-			    	+ String(value.operation_name) + "</botton>";
-		    }
-
-		    str = str + "</td><td>" + String(value.last_send_recive_datetime)
-		    		+"</td><td>" + String(value.last_ins_status_name)
-		    		+"</td><td>" + String(value.status_name)
+		    str += "</td><td id='sendReciveDateTime'>" + String(srdatetime)
+		    		+"</td><td id='status'>" + String(value.status_name)
+		    		+"</td><td id='checkDateTime'>" + String(ckdatetime)
 		    		+"</td></tr>";
 
-		    $("#detail>tbody").append(str);
+		    $("#detailTBody>tbody").append(str);
 	    });
 	});
 
 }
 
-//操作ボタン：文書登録のイベント
-$(document).on('click', '.operation_btn01' , function() {
-	var ym3 = strYyyyMm.replace("-","");
-	var emplCode = $(this).closest('tr').find('input[name=emplCode]').val();
-	var url = "http://localhost:8080/oraDoc/form/doc0005/doc0005.html";
-	url += "?ym=" + ym3 + "?ecd=" + emplCode;
+$(function() {
+	/* *********************************************
+	 *エラーメッセージダイアログを定義
+	 ********************************************** */
+	$("#message").dialog({
+	    autoOpen: false,
+	    modal: true,
+	    title: "エラーメッセージ",
+	    width: 400,
+	    height: 200,
+	    buttons: [
+	    	{
+	            text: 'OK',
+	            class:'d-button',
+	            click: function() {
+	                //ボタンを押したときの処理
+	            	$(this).dialog("close");
+	            }
+	        }
+	    ]
+	});
+});
+/**********************************************
+ * 年月の形式をyyyy/mmに変換
+*********************************************** */
+function formatyear(yyyymm){
+	if(yyyymm !=null){
+		const yyyy = yyyymm.substring(0,4);
+		const mm = yyyymm.substring(4,6);
+		const yearm = yyyy + "/" + mm
+		return yearm;
+	}
+	yyyymm ="--";
+	return yyyymm	
+}
+/**********************************************
+ * 時間の形式をyyyy/mm/dd hh:mm:ssに変換
+ **********************************************/
+function formattime(time){
+	 if(time != null){
+		const yyyy = time.substring(0, 4);
+		const mm = time.substring(4, 6);
+		const dd = time.substring(6, 8);
+		const hh = time.substring(8, 10);
+		const min = time.substring(10, 12);
+		const ss = time.substring(12, 14);
+		const dtime = yyyy +"/"+ mm +"/"+ dd +" "+ hh + ":" + min + ":" + ss ; 
+		return dtime;
+	}
+	time = "--";
+	return time
+}
+/* *********************************************
+ *処理メッセージ表示
+ ********************************************** */
+function displayMessage(str) {
+	$('#message').empty();
+	$('#message').append("<p>" + str + "</p>");
+	$("#message").dialog("open");
+	return false;
+}
+/* **********************************************
+*操作ボタン：文書閲覧のイベント
+*********************************************** */
+$(document).on('click', '.operation_btn' , function() {
+	
+	//doc0006へ送るパラメータを作成
+	const sr = 1;//送受信区分
+	const ym = $(this).data("yearM").replace("/","");//年月
+	const ecd = userInfoArray[0];//社員コード
+	const dt = $(this).data("docT");//文書種類
+	const dName = $(this).data("docN");//文書名
+	const dn = encodeBase64Utf8(dName);
+	let url = "http://localhost:8080/oraDoc/form/doc0006/doc0006.html";
+	url += "?sr="+sr+ "?ym=" + ym + "?ecd=" + ecd +"?dt="+ dt + "?dn="+ dn;
 
 	//新しいウィンドウで表示
 	window.open(url);
 });
-
-//操作ボタン：共通連絡のイベント
-$(document).on('click', '.operation_btn03' , function() {
-	var ym8 = strYyyyMm.replace("-","");
-	var url = "http://localhost:8080/oraDoc/form/doc0010/doc0010.html";
-	url += "?ym=" + ym8;
-
-	//新しいウィンドウで表示
-	window.open(url);
-});
-
-
-
